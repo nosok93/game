@@ -33,10 +33,18 @@ jobs:
       - name: Prepare buildozer.spec
         run: |
           buildozer init
+          # Основные параметры
           sed -i 's/^title = .*/title = RW Script Kurs/' buildozer.spec
           sed -i 's/^package.name = .*/package.name = rwscript/' buildozer.spec
-          sed -i 's/^#*requirements = .*/requirements = python3,kivy/' buildozer.spec
+          # ВАЖНО: фиксируем Python 3.11.12 (не 3.14!)
+          sed -i 's/^#*requirements = .*/requirements = python3==3.11.12,kivy/' buildozer.spec
           sed -i 's/^#*orientation = .*/orientation = portrait/' buildozer.spec
+          # Только одна архитектура — arm64-v8a
+          sed -i 's/^#*android.archs = .*/android.archs = arm64-v8a/' buildozer.spec
+          # Фиксируем версию pip (чтобы не падал на Python 3.14 внутри сборки)
+          sed -i 's/^#*p4a.pip_version = .*/p4a.pip_version = 24.0/' buildozer.spec
+          # Разрешения
+          sed -i 's/^#*android.permissions = .*/android.permissions = INTERNET/' buildozer.spec
 
       - name: Build APK
         run: yes | buildozer -v android debug
